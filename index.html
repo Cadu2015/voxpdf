@@ -1,152 +1,113 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#111827" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>VoxPDF</title>
-  <style>
-    :root { color-scheme: light dark; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-    body { margin:0; background:#f3f4f6; color:#111827; }
-    header { padding:18px 16px 12px; background:#111827; color:#fff; position:sticky; top:0; z-index:3; }
-    header h1 { margin:0; font-size:22px; }
-    header p { margin:5px 0 0; opacity:.8; font-size:13px; }
-    main { padding:14px; max-width:900px; margin:auto; }
-    .card { background:#fff; border-radius:16px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,.07); margin-bottom:14px; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    button, select, input[type="file"] { font:inherit; }
-    button { border:0; border-radius:12px; padding:11px 14px; background:#111827; color:#fff; }
-    button.secondary { background:#e5e7eb; color:#111827; }
-    button:disabled { opacity:.45; }
-    .grow { flex:1; }
-    .meta { font-size:13px; color:#6b7280; margin-top:8px; }
-    #text { white-space:pre-wrap; line-height:1.55; max-height:45vh; overflow:auto; padding:12px; border-radius:12px; background:#f9fafb; }
-    label { font-size:13px; color:#4b5563; }
-    input[type="range"] { width:180px; }
-    footer { text-align:center; color:#6b7280; font-size:12px; padding:10px 16px 24px; }
-    @media (prefers-color-scheme: dark) {
-      body { background:#0b1020; color:#f9fafb; }
-      .card { background:#111827; }
-      .secondary { background:#374151 !important; color:#fff !important; }
-      #text { background:#0f172a; }
-      .meta,label { color:#cbd5e1; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>VoxPDF V3</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light dark}
+body{margin:0;background:#f3f4f6;color:#111827}
+header{padding:16px;background:#111827;color:white;position:sticky;top:0;z-index:20}
+header h1{margin:0;font-size:22px}.sub{font-size:13px;opacity:.8;margin-top:4px}
+main{padding:12px;max-width:980px;margin:auto}
+.card{background:white;border-radius:16px;padding:12px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.07)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,select,input{font:inherit}
+button{border:0;border-radius:11px;padding:10px 13px;background:#111827;color:#fff}
+button.secondary{background:#e5e7eb;color:#111827}
+.grow{flex:1}.meta{font-size:13px;color:#6b7280}
+#bookWrap{position:relative;overflow:auto;background:#d1d5db;border-radius:12px;max-height:62vh;touch-action:pan-x pan-y}
+#pageStage{position:relative;margin:0 auto;transform-origin:top left}
+#pdfCanvas{display:block;background:white}
+#textLayer{position:absolute;inset:0;overflow:hidden;opacity:1;line-height:1}
+.textWord{position:absolute;white-space:pre;transform-origin:0 0;color:transparent;cursor:pointer;border-radius:3px}
+.textWord.active{background:rgba(255,215,0,.58);outline:1px solid rgba(234,179,8,.85)}
+.textWord.spoken{background:rgba(253,230,138,.24)}
+#plainText{white-space:pre-wrap;line-height:1.55;max-height:55vh;overflow:auto;background:#f9fafb;border-radius:12px;padding:12px}
+.hidden{display:none!important}
+.segment{display:flex;background:#e5e7eb;border-radius:11px;padding:3px}
+.segment button{background:transparent;color:#111827;padding:7px 11px}.segment button.active{background:#111827;color:#fff}
+#rate{width:160px}.status{font-size:12px;color:#6b7280}
+mark{border-radius:4px;padding:1px 2px}
+@media(prefers-color-scheme:dark){
+body{background:#0b1020;color:#f9fafb}.card{background:#111827}.secondary{background:#374151!important;color:white!important}
+#plainText{background:#0f172a}.meta,.status{color:#cbd5e1}.segment{background:#374151}.segment button{color:white}
+}
+</style>
 </head>
 <body>
-<header>
-  <h1>VoxPDF</h1>
-  <p>Leitor de PDF em voz alta para iPhone</p>
-</header>
+<header><h1>VoxPDF</h1><div class="sub">Modo Livro + leitura sincronizada · V3</div></header>
 <main>
-  <section class="card">
-    <input id="file" type="file" accept="application/pdf" />
-    <div class="meta" id="fileName">Nenhum PDF carregado</div>
-  </section>
-
-  <section class="card">
-    <div class="row">
-      <button id="prev" class="secondary">◀ Página</button>
-      <div class="grow"><strong id="pageInfo">Página 0 / 0</strong></div>
-      <button id="next" class="secondary">Página ▶</button>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="row">
-      <button id="play">▶ Ler</button>
-      <button id="pause" class="secondary">⏸ Pausar</button>
-      <button id="stop" class="secondary">⏹ Parar</button>
-    </div>
-    <div style="height:12px"></div>
-    <div class="row">
-      <label>Velocidade <span id="rateLabel">1.0×</span></label>
-      <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1" />
-      <select id="voice" class="grow" aria-label="Voz"></select>
-    </div>
-  </section>
-
-  <section class="card">
-    <strong>Texto da página</strong>
-    <div id="text" class="meta">Carregue um PDF para começar.</div>
-  </section>
+<section class="card"><input id="file" type="file" accept="application/pdf"><div class="meta" id="fileName">Nenhum PDF carregado</div></section>
+<section class="card"><div class="row"><button id="prev" class="secondary">◀ Página</button><strong id="pageInfo" class="grow">Página 0 / 0</strong><button id="next" class="secondary">Página ▶</button></div></section>
+<section class="card">
+<div class="row"><button id="play">▶ Ler</button><button id="pause" class="secondary">⏸ Pausar</button><button id="stop" class="secondary">⏹ Parar</button><button id="back" class="secondary">↶ palavra</button><button id="forward" class="secondary">palavra ↷</button></div>
+<div style="height:10px"></div>
+<div class="row"><label>Velocidade <strong id="rateLabel">1.0×</strong></label><input id="rate" type="range" min="0.5" max="3" step="0.1" value="1"><select id="voice" class="grow"></select><button id="reloadVoices" class="secondary">↻ Vozes</button></div>
+<div id="voiceStatus" class="status" style="margin-top:7px">Carregando vozes…</div>
+</section>
+<section class="card"><div class="row"><div class="segment"><button id="modeBook" class="active">📖 Livro</button><button id="modeText">☰ Texto</button></div><div class="grow"></div><button id="zoomOut" class="secondary">−</button><span id="zoomLabel" class="status">100%</span><button id="zoomIn" class="secondary">+</button><button id="fit" class="secondary">Ajustar</button></div></section>
+<section id="bookCard" class="card"><div id="bookWrap"><div id="pageStage"><canvas id="pdfCanvas"></canvas><div id="textLayer"></div></div></div><div class="status" style="margin-top:7px">Toque em uma palavra da página para começar a leitura naquele ponto.</div></section>
+<section id="textCard" class="card hidden"><strong>Texto da página</strong><div id="plainText" class="meta">Carregue um PDF para começar.</div></section>
 </main>
-<footer>
-  PDFs escaneados como imagem podem não ter texto extraível. A leitura em segundo plano depende das limitações do Safari/iOS.
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
 <script type="module">
-  import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
-
-  const els = Object.fromEntries(['file','fileName','prev','next','pageInfo','play','pause','stop','rate','rateLabel','voice','text'].map(id=>[id,document.getElementById(id)]));
-  let pdfDoc = null;
-  let pageNum = 1;
-  let pageText = '';
-  let speaking = false;
-  let currentFileKey = '';
-
-  function saveState(){ if(currentFileKey) localStorage.setItem('voxpdf:'+currentFileKey, String(pageNum)); }
-  function loadVoices(){
-    const voices = speechSynthesis.getVoices();
-    els.voice.innerHTML='';
-    const sorted = [...voices].sort((a,b)=> (a.lang.startsWith('pt')?-1:1) - (b.lang.startsWith('pt')?-1:1));
-    sorted.forEach((v,i)=>{
-      const o=document.createElement('option'); o.value=voices.indexOf(v); o.textContent=`${v.name} — ${v.lang}`;
-      if(v.lang.toLowerCase().startsWith('pt-br')) o.selected=true;
-      els.voice.appendChild(o);
-    });
-  }
-  speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
-
-  async function renderPage(){
-    if(!pdfDoc) return;
-    speechSynthesis.cancel(); speaking=false;
-    const page = await pdfDoc.getPage(pageNum);
-    const content = await page.getTextContent();
-    pageText = content.items.map(i=>i.str).join(' ').replace(/\s+/g,' ').trim();
-    els.text.textContent = pageText || '[Esta página não contém texto extraível.]';
-    els.pageInfo.textContent = `Página ${pageNum} / ${pdfDoc.numPages}`;
-    els.prev.disabled = pageNum<=1; els.next.disabled = pageNum>=pdfDoc.numPages;
-    saveState();
-  }
-
-  els.file.addEventListener('change', async e=>{
-    const file=e.target.files?.[0]; if(!file) return;
-    currentFileKey = `${file.name}:${file.size}:${file.lastModified}`;
-    els.fileName.textContent=file.name;
-    const data = new Uint8Array(await file.arrayBuffer());
-    pdfDoc = await pdfjsLib.getDocument({data}).promise;
-    const saved = Number(localStorage.getItem('voxpdf:'+currentFileKey));
-    pageNum = saved>=1 && saved<=pdfDoc.numPages ? saved : 1;
-    await renderPage();
-  });
-
-  els.prev.onclick=async()=>{ if(pdfDoc&&pageNum>1){pageNum--; await renderPage();} };
-  els.next.onclick=async()=>{ if(pdfDoc&&pageNum<pdfDoc.numPages){pageNum++; await renderPage();} };
-  els.rate.oninput=()=> els.rateLabel.textContent=Number(els.rate.value).toFixed(1)+'×';
-
-  els.play.onclick=()=>{
-    if(!pageText) return;
-    if(speechSynthesis.paused){ speechSynthesis.resume(); speaking=true; return; }
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(pageText);
-    u.lang='pt-BR'; u.rate=Number(els.rate.value);
-    const voices=speechSynthesis.getVoices(); const idx=Number(els.voice.value); if(voices[idx]) u.voice=voices[idx];
-    u.onend=async()=>{
-      speaking=false;
-      if(pdfDoc && pageNum<pdfDoc.numPages){ pageNum++; await renderPage(); els.play.click(); }
-    };
-    u.onerror=()=> speaking=false;
-    speechSynthesis.speak(u); speaking=true;
-  };
-  els.pause.onclick=()=>{ if(speechSynthesis.speaking&&!speechSynthesis.paused) speechSynthesis.pause(); };
-  els.stop.onclick=()=>{ speechSynthesis.cancel(); speaking=false; };
-
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
+const ids=['file','fileName','prev','next','pageInfo','play','pause','stop','back','forward','rate','rateLabel','voice','reloadVoices','voiceStatus','modeBook','modeText','zoomOut','zoomIn','fit','zoomLabel','bookCard','textCard','bookWrap','pageStage','pdfCanvas','textLayer','plainText'];
+const e=Object.fromEntries(ids.map(id=>[id,document.getElementById(id)]));
+let pdf=null,pageNum=1,currentFileKey='',scale=1.25,pageItems=[],words=[],wordIndex=0,voices=[],playing=false,gen=0;
+let ctx=e.pdfCanvas.getContext('2d');
+function keyVoice(v){return `${v.voiceURI}|${v.lang}|${v.name}`}
+function chosenVoice(){return voices.find(v=>keyVoice(v)===e.voice.value)}
+function loadVoices(){
+ const prev=e.voice.value; voices=speechSynthesis.getVoices();
+ const ordered=[...voices].sort((a,b)=>{const pa=a.lang.toLowerCase().startsWith('pt-br')?0:a.lang.toLowerCase().startsWith('pt')?1:2;const pb=b.lang.toLowerCase().startsWith('pt-br')?0:b.lang.toLowerCase().startsWith('pt')?1:2;return pa-pb||a.name.localeCompare(b.name)});
+ e.voice.innerHTML=''; ordered.forEach(v=>{const o=document.createElement('option');o.value=keyVoice(v);o.textContent=`${v.name} — ${v.lang}`;e.voice.appendChild(o)});
+ if(prev&&ordered.some(v=>keyVoice(v)===prev))e.voice.value=prev;else{const pt=ordered.find(v=>v.lang.toLowerCase().startsWith('pt-br'));if(pt)e.voice.value=keyVoice(pt)}
+ e.voiceStatus.textContent=`${ordered.length} voz(es) · ${ordered.filter(v=>v.lang.toLowerCase().startsWith('pt-br')).length} pt-BR`;
+}
+speechSynthesis.onvoiceschanged=loadVoices;loadVoices();[200,600,1200,2500].forEach(t=>setTimeout(loadVoices,t));
+e.reloadVoices.onclick=()=>{loadVoices();[300,900,1800].forEach(t=>setTimeout(loadVoices,t))};
+function saveState(){if(currentFileKey)localStorage.setItem('voxpdf3:'+currentFileKey,JSON.stringify({page:pageNum,word:wordIndex,rate:+e.rate.value,voice:e.voice.value,scale}))}
+function state(){try{return JSON.parse(localStorage.getItem('voxpdf3:'+currentFileKey)||'{}')}catch{return{}}}
+function splitWords(items){
+ const arr=[];items.forEach((it,itemIndex)=>{const txt=(it.str||'').trim();if(!txt)return;const parts=[...txt.matchAll(/\S+/g)];const itemWidth=Math.max(it.width||1,1);
+ parts.forEach(m=>{const start=m.index||0;arr.push({text:m[0],itemIndex,startRatio:start/Math.max(txt.length,1),widthRatio:m[0].length/Math.max(txt.length,1),item:it})})});return arr
+}
+async function renderPage(restore=false){
+ if(!pdf)return;gen++;speechSynthesis.cancel();playing=false;
+ const p=await pdf.getPage(pageNum);const viewport=p.getViewport({scale});
+ e.pdfCanvas.width=Math.ceil(viewport.width);e.pdfCanvas.height=Math.ceil(viewport.height);e.pdfCanvas.style.width=viewport.width+'px';e.pdfCanvas.style.height=viewport.height+'px';e.pageStage.style.width=viewport.width+'px';e.pageStage.style.height=viewport.height+'px';
+ await p.render({canvasContext:ctx,viewport}).promise;
+ const tc=await p.getTextContent();pageItems=tc.items;words=splitWords(pageItems);if(!restore)wordIndex=0;wordIndex=Math.max(0,Math.min(wordIndex,Math.max(0,words.length-1)));renderOverlay(viewport);
+ e.plainText.textContent=pageItems.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim()||'[Sem texto extraível]';e.pageInfo.textContent=`Página ${pageNum} / ${pdf.numPages}`;e.prev.disabled=pageNum<=1;e.next.disabled=pageNum>=pdf.numPages;highlightWord();saveState()
+}
+function renderOverlay(viewport){
+ e.textLayer.innerHTML='';
+ words.forEach((w,i)=>{const it=w.item,tx=pdfjsLib.Util.transform(viewport.transform,it.transform),fontHeight=Math.hypot(tx[2],tx[3]),fullWidth=(it.width||0)*scale,left=tx[4]+fullWidth*w.startRatio,top=tx[5]-fontHeight,width=Math.max(fullWidth*w.widthRatio,4);
+ const s=document.createElement('span');s.className='textWord';s.dataset.i=i;s.textContent=w.text;s.style.left=left+'px';s.style.top=top+'px';s.style.width=width+'px';s.style.height=Math.max(fontHeight*1.15,8)+'px';s.style.fontSize=fontHeight+'px';s.onclick=()=>{wordIndex=i;highlightWord();restart()};e.textLayer.appendChild(s)})
+}
+function highlightWord(){const nodes=e.textLayer.querySelectorAll('.textWord');nodes.forEach((n,i)=>{n.classList.toggle('active',i===wordIndex);n.classList.toggle('spoken',i<wordIndex)});const active=nodes[wordIndex];if(active)active.scrollIntoView({block:'center',inline:'center',behavior:'smooth'});renderPlainHighlight()}
+function renderPlainHighlight(){if(!words.length)return;e.plainText.innerHTML='';const before=words.slice(0,wordIndex).map(w=>w.text).join(' '),cur=words[wordIndex]?.text||'',after=words.slice(wordIndex+1).map(w=>w.text).join(' ');if(before)e.plainText.append(document.createTextNode(before+' '));const m=document.createElement('mark');m.textContent=cur;e.plainText.appendChild(m);if(after)e.plainText.append(document.createTextNode(' '+after))}
+function sentenceFromWord(start){let end=start,chars=0;while(end<words.length&&chars<220){chars+=words[end].text.length+1;if(/[.!?;:]$/.test(words[end].text)&&chars>40){end++;break}end++}return{text:words.slice(start,end).map(w=>w.text).join(' '),end}}
+function speak(){
+ if(!words.length)return;gen++;const my=gen;speechSynthesis.cancel();const seg=sentenceFromWord(wordIndex);const u=new SpeechSynthesisUtterance(seg.text),v=chosenVoice();u.lang=v?.lang||'pt-BR';u.rate=+e.rate.value;if(v)u.voice=v;
+ u.onstart=()=>{if(my===gen){playing=true;highlightWord()}};
+ u.onboundary=ev=>{if(my!==gen||ev.name!=='word')return;const prefix=seg.text.slice(0,ev.charIndex);const count=(prefix.match(/\S+/g)||[]).length;wordIndex=Math.min(words.length-1,wordIndex+Math.max(0,count));highlightWord();saveState()};
+ u.onend=async()=>{if(my!==gen)return;playing=false;wordIndex=seg.end;if(wordIndex<words.length){highlightWord();saveState();setTimeout(speak,35)}else if(pageNum<pdf.numPages){pageNum++;wordIndex=0;await renderPage(false);setTimeout(speak,70)}};
+ u.onerror=()=>{if(my===gen)playing=false};speechSynthesis.speak(u)
+}
+function restart(){e.rateLabel.textContent=(+e.rate.value).toFixed(1)+'×';saveState();if(speechSynthesis.speaking||speechSynthesis.paused||playing){gen++;speechSynthesis.cancel();playing=false;setTimeout(speak,80)}}
+e.file.onchange=async ev=>{const f=ev.target.files?.[0];if(!f)return;currentFileKey=`${f.name}:${f.size}:${f.lastModified}`;e.fileName.textContent=f.name;pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;const s=state();pageNum=s.page>=1&&s.page<=pdf.numPages?s.page:1;wordIndex=Number.isFinite(s.word)?s.word:0;if(s.rate){e.rate.value=s.rate;e.rateLabel.textContent=(+s.rate).toFixed(1)+'×'}if(s.voice)e.voice.value=s.voice;if(s.scale)scale=s.scale;await renderPage(true)};
+e.prev.onclick=async()=>{if(pdf&&pageNum>1){pageNum--;wordIndex=0;await renderPage(false)}};e.next.onclick=async()=>{if(pdf&&pageNum<pdf.numPages){pageNum++;wordIndex=0;await renderPage(false)}};
+e.play.onclick=()=>{if(speechSynthesis.paused){speechSynthesis.resume();playing=true}else speak()};e.pause.onclick=()=>{if(speechSynthesis.speaking&&!speechSynthesis.paused){speechSynthesis.pause();playing=false}};e.stop.onclick=()=>{gen++;speechSynthesis.cancel();playing=false;saveState()};
+e.back.onclick=()=>{wordIndex=Math.max(0,wordIndex-1);highlightWord();restart()};e.forward.onclick=()=>{wordIndex=Math.min(words.length-1,wordIndex+1);highlightWord();restart()};e.rate.oninput=restart;e.voice.onchange=restart;
+e.modeBook.onclick=()=>{e.bookCard.classList.remove('hidden');e.textCard.classList.add('hidden');e.modeBook.classList.add('active');e.modeText.classList.remove('active')};e.modeText.onclick=()=>{e.textCard.classList.remove('hidden');e.bookCard.classList.add('hidden');e.modeText.classList.add('active');e.modeBook.classList.remove('active')};
+async function setScale(v){scale=Math.max(.6,Math.min(2.6,v));e.zoomLabel.textContent=Math.round(scale/1.25*100)+'%';if(pdf)await renderPage(true);saveState()}
+e.zoomIn.onclick=()=>setScale(scale+.15);e.zoomOut.onclick=()=>setScale(scale-.15);e.fit.onclick=async()=>{if(!pdf)return;const p=await pdf.getPage(pageNum);const base=p.getViewport({scale:1});setScale((e.bookWrap.clientWidth-8)/base.width)};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
 </script>
-</body>
-</html>
+</body></html>
