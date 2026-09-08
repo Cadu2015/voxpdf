@@ -1,178 +1,77 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827">
-<link rel="manifest" href="manifest.webmanifest">
-<title>VoxPDF Study V4.1</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827"><link rel="manifest" href="manifest.webmanifest">
+<title>VoxPDF V5 Modern Reader</title>
 <style>
-:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light dark}
-*{box-sizing:border-box} body{margin:0;background:#f3f4f6;color:#111827}
-header{padding:16px;background:#111827;color:white;position:sticky;top:0;z-index:10}
-header h1{margin:0;font-size:22px}.sub{font-size:12px;opacity:.8;margin-top:4px}
-main{padding:12px;max-width:980px;margin:auto}.card{background:white;border-radius:16px;padding:12px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.07)}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grow{flex:1}
-button,select,input,textarea{font:inherit}button{border:0;border-radius:11px;padding:10px 13px;background:#111827;color:#fff}
-button.secondary{background:#e5e7eb;color:#111827}button:disabled{opacity:.45}.meta,.status{font-size:12px;color:#6b7280}
-#bookWrap{position:relative;overflow:auto;background:#d1d5db;border-radius:12px;max-height:60vh}
-#pageStage{position:relative;margin:0 auto}#pdfCanvas{display:block;background:white}
-#textLayer{position:absolute;inset:0;overflow:hidden}.textWord{position:absolute;color:transparent;white-space:pre;border-radius:3px}
-.textWord.active{background:rgba(255,215,0,.62);outline:1px solid rgba(234,179,8,.8)}.textWord.spoken{background:rgba(253,230,138,.22)}
-#plainText{white-space:pre-wrap;line-height:1.6;max-height:55vh;overflow:auto;background:#f9fafb;border-radius:12px;padding:12px}
-.hidden{display:none!important}.segment{display:flex;background:#e5e7eb;border-radius:11px;padding:3px}.segment button{background:transparent;color:#111827;padding:7px 11px}.segment button.active{background:#111827;color:white}
-#selectedText{width:100%;min-height:80px;border:1px solid #d1d5db;border-radius:10px;padding:9px;background:transparent;color:inherit}
-.result{white-space:pre-wrap;line-height:1.5;background:#f9fafb;border-radius:10px;padding:10px;margin-top:8px}
-.error{background:#fee2e2;color:#7f1d1d;padding:10px;border-radius:10px;margin-top:8px;white-space:pre-wrap}
-.ok{background:#dcfce7;color:#14532d;padding:10px;border-radius:10px;margin-top:8px}
-@media(prefers-color-scheme:dark){body{background:#0b1020;color:#f9fafb}.card{background:#111827}.secondary{background:#374151!important;color:white!important}#plainText,.result{background:#0f172a}.meta,.status{color:#cbd5e1}.segment{background:#374151}.segment button{color:#fff}#selectedText{border-color:#4b5563}}
-</style>
-</head>
-<body>
-<header><h1>VoxPDF Study</h1><div class="sub">V4.1 · correção para Google Drive e PDFs grandes</div></header>
+:root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color-scheme:light dark;--bg:#eef1f5;--card:rgba(255,255,255,.88);--text:#111827;--muted:#6b7280;--accent:#2563eb;--soft:#e8edf5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);overscroll-behavior:none}
+.app{min-height:100vh;padding-bottom:150px}.top{position:sticky;top:0;z-index:30;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;background:rgba(238,241,245,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(120,120,120,.14)}
+.toprow{display:flex;align-items:center;gap:10px}.brand{font-size:20px;font-weight:800}.bookname{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.grow{flex:1}
+.icon,.btn{border:0;background:var(--soft);color:var(--text);border-radius:14px;padding:10px 12px;font:inherit}.primary{background:var(--accent);color:white}.circle{width:48px;height:48px;border-radius:50%;font-size:20px;padding:0}.play{width:62px;height:62px;font-size:26px}
+main{max-width:1000px;margin:auto;padding:12px}.card{background:var(--card);border:1px solid rgba(120,120,120,.12);box-shadow:0 10px 30px rgba(0,0,0,.06);border-radius:22px;padding:12px;margin-bottom:12px;backdrop-filter:blur(16px)}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.status{font-size:12px;color:var(--muted)}
+.progress{height:5px;background:var(--soft);border-radius:10px;overflow:hidden}.progress>div{height:100%;width:0;background:var(--accent);transition:width .25s}
+#bookWrap{overflow:auto;max-height:67vh;border-radius:16px;background:#cfd4dc}#pageStage{position:relative;margin:auto}#pdfCanvas{display:block;background:white}
+#textLayer{position:absolute;inset:0}.word{position:absolute;color:transparent;white-space:pre;border-radius:3px}.word.active{background:rgba(250,204,21,.62)}.word.spoken{background:rgba(250,204,21,.18)}
+#plainText{white-space:pre-wrap;line-height:1.7;font-size:17px;padding:10px;max-height:65vh;overflow:auto}.hidden{display:none!important}
+.player{position:fixed;left:10px;right:10px;bottom:calc(68px + env(safe-area-inset-bottom));z-index:40;max-width:760px;margin:auto;background:rgba(255,255,255,.90);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid rgba(120,120,120,.18);border-radius:26px;padding:10px 14px;box-shadow:0 12px 38px rgba(0,0,0,.16)}
+.player .row{justify-content:center}.mini{font-size:11px;color:var(--muted);text-align:center;margin-top:5px}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:45;height:calc(62px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:rgba(250,250,250,.92);backdrop-filter:blur(22px);border-top:1px solid rgba(120,120,120,.18)}
+.tab{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px}.tab.active{color:var(--accent);font-weight:700}
+.sheet{position:fixed;z-index:60;left:8px;right:8px;bottom:8px;max-width:760px;margin:auto;background:var(--card);border-radius:26px;padding:16px;box-shadow:0 15px 60px rgba(0,0,0,.28);backdrop-filter:blur(25px)}
+select,input,textarea{font:inherit}select{max-width:100%;padding:9px;border-radius:12px;border:1px solid #d1d5db;background:transparent;color:inherit}textarea{width:100%;min-height:100px;border:1px solid #d1d5db;border-radius:14px;padding:10px;background:transparent;color:inherit}
+.result{white-space:pre-wrap;line-height:1.55;background:var(--soft);border-radius:14px;padding:10px;margin-top:9px}.fileLabel{display:inline-block;cursor:pointer}
+@media(prefers-color-scheme:dark){:root{--bg:#080d18;--card:rgba(17,24,39,.90);--text:#f9fafb;--muted:#b5becd;--soft:#273244}.top{background:rgba(8,13,24,.86)}.player{background:rgba(17,24,39,.92)}.tabs{background:rgba(10,15,25,.94)}}
+</style></head>
+<body><div class="app">
+<header class="top"><div class="toprow"><div><div class="brand">VoxPDF</div><div id="bookName" class="bookname">Modern Reader · V5</div></div><div class="grow"></div><label class="icon fileLabel">＋ PDF<input id="file" type="file" accept=".pdf,application/pdf" hidden></label><button id="focus" class="icon">◫</button></div>
+<div style="height:9px"></div><div class="row"><span id="pageInfo" class="status grow">Página 0 / 0</span><span id="percent" class="status">0%</span></div><div class="progress"><div id="progressBar"></div></div></header>
 <main>
-<section class="card">
- <input id="file" type="file" accept=".pdf,application/pdf">
- <div id="fileName" class="meta">Nenhum PDF carregado</div>
- <div id="loadStatus" class="status" style="margin-top:7px"></div>
- <div id="loadMessage" class="hidden"></div>
-</section>
-
-<section class="card"><div class="row"><button id="prev" class="secondary">◀ Página</button><strong id="pageInfo" class="grow">Página 0 / 0</strong><button id="next" class="secondary">Página ▶</button></div></section>
-
-<section class="card">
- <div class="row"><button id="play">▶ Ler</button><button id="pause" class="secondary">⏸ Pausar</button><button id="stop" class="secondary">⏹ Parar</button><button id="back" class="secondary">↶ palavra</button><button id="forward" class="secondary">palavra ↷</button></div>
- <div style="height:10px"></div>
- <div class="row"><label>Velocidade <strong id="rateLabel">1.0×</strong></label><input id="rate" type="range" min=".5" max="3" step=".1" value="1"><select id="voice" class="grow"></select><button id="reloadVoices" class="secondary">↻ Vozes</button></div>
- <div id="voiceStatus" class="status" style="margin-top:7px"></div>
-</section>
-
-<section class="card"><div class="row"><div class="segment"><button id="modeBook" class="active">📖 Livro</button><button id="modeText">☰ Texto</button></div><div class="grow"></div><button id="zoomOut" class="secondary">−</button><span id="zoomLabel" class="status">100%</span><button id="zoomIn" class="secondary">+</button><button id="fit" class="secondary">Ajustar</button></div></section>
-
-<section id="bookCard" class="card"><div id="bookWrap"><div id="pageStage"><canvas id="pdfCanvas"></canvas><div id="textLayer"></div></div></div></section>
-<section id="textCard" class="card hidden"><strong>Texto da página</strong><div id="plainText" class="meta">Carregue um PDF.</div></section>
-
-<section class="card">
- <strong>Ferramentas de estudo</strong>
- <textarea id="selectedText" placeholder="Selecione no modo Texto ou cole um trecho aqui."></textarea>
- <div class="row" style="margin-top:8px"><select id="targetLang"><option value="pt">Português</option><option value="en">Inglês</option><option value="es">Espanhol</option><option value="fr">Francês</option></select><button id="translate">🌐 Traduzir</button><button id="dictionary" class="secondary">📖 Dicionário</button><button id="summaryPage" class="secondary">Resumo da página</button></div>
- <div id="toolResult" class="result hidden"></div>
-</section>
+<section id="reader" class="card"><div id="loadStatus" class="status"></div><div id="bookWrap"><div id="pageStage"><canvas id="pdfCanvas"></canvas><div id="textLayer"></div></div></div></section>
+<section id="textView" class="card hidden"><div id="plainText">Abra um PDF para começar.</div></section>
+<section id="studyView" class="card hidden"><h3 style="margin-top:4px">Estudo</h3><textarea id="selectedText" placeholder="Selecione um trecho no modo Texto ou cole aqui."></textarea><div class="row" style="margin-top:8px"><select id="targetLang"><option value="pt">Português</option><option value="en">Inglês</option><option value="es">Espanhol</option><option value="fr">Francês</option></select><button id="translate" class="btn primary">Traduzir</button><button id="dictionary" class="btn">Dicionário</button><button id="summary" class="btn">Resumir página</button></div><div id="result" class="result hidden"></div></section>
 </main>
-
+<div id="player" class="player"><div class="row"><button id="prev" class="icon circle">‹</button><button id="back" class="icon circle">↶</button><button id="play" class="icon circle play primary">▶</button><button id="forward" class="icon circle">↷</button><button id="next" class="icon circle">›</button></div><div class="row" style="margin-top:8px"><button id="rateBtn" class="btn">1.0×</button><select id="voice" class="grow"></select><button id="testVoice" class="btn">Testar</button></div><div id="voiceStatus" class="mini"></div></div>
+<nav id="tabs" class="tabs"><button class="tab active" data-view="reader">▣<br>Livro</button><button class="tab" data-view="textView">☰<br>Texto</button><button class="tab" data-view="studyView">✦<br>Estudo</button></nav>
+</div>
 <script type="module">
 import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
-
-const ids=['file','fileName','loadStatus','loadMessage','prev','next','pageInfo','play','pause','stop','back','forward','rate','rateLabel','voice','reloadVoices','voiceStatus','modeBook','modeText','zoomOut','zoomIn','fit','zoomLabel','bookCard','textCard','bookWrap','pageStage','pdfCanvas','textLayer','plainText','selectedText','targetLang','translate','dictionary','summaryPage','toolResult'];
-const e=Object.fromEntries(ids.map(id=>[id,document.getElementById(id)]));
-let pdf=null,pageNum=1,scale=1.25,pageItems=[],words=[],wordIndex=0,voices=[],gen=0,playing=false,currentObjectURL=null,currentKey='';
-const ctx=e.pdfCanvas.getContext('2d');
-
-function msg(text,type='status'){
- e.loadMessage.className=type==='error'?'error':type==='ok'?'ok':'status';
- e.loadMessage.textContent=text;e.loadMessage.classList.remove('hidden');
-}
-function clearMsg(){e.loadMessage.classList.add('hidden');e.loadMessage.textContent=''}
-function humanSize(n){return n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB'}
-
-function vk(v){return `${v.voiceURI}|${v.lang}|${v.name}`}
-function loadVoices(){
- const old=e.voice.value;voices=speechSynthesis.getVoices();
- const o=[...voices].sort((a,b)=>(a.lang.toLowerCase().startsWith('pt-br')?0:1)-(b.lang.toLowerCase().startsWith('pt-br')?0:1));
- e.voice.innerHTML='';o.forEach(v=>{const x=document.createElement('option');x.value=vk(v);x.textContent=`${v.name} — ${v.lang}`;e.voice.appendChild(x)});
- if(old&&o.some(v=>vk(v)===old))e.voice.value=old;else{const p=o.find(v=>v.lang.toLowerCase().startsWith('pt-br'));if(p)e.voice.value=vk(p)}
- e.voiceStatus.textContent=`${o.length} voz(es) · ${o.filter(v=>v.lang.toLowerCase().startsWith('pt-br')).length} pt-BR`;
-}
-speechSynthesis.onvoiceschanged=loadVoices;loadVoices();[200,700,1500].forEach(t=>setTimeout(loadVoices,t));
-e.reloadVoices.onclick=loadVoices;
-function selectedVoice(){return voices.find(v=>vk(v)===e.voice.value)}
-
-function splitWords(items){
- const a=[];items.forEach(it=>{const t=(it.str||'').trim();if(!t)return;for(const m of t.matchAll(/\S+/g)){a.push({text:m[0],startRatio:(m.index||0)/Math.max(t.length,1),widthRatio:m[0].length/Math.max(t.length,1),item:it})}});return a
-}
-
-async function renderPage(){
- if(!pdf)return;
- gen++;speechSynthesis.cancel();playing=false;
- e.loadStatus.textContent=`Renderizando página ${pageNum}…`;
- const p=await pdf.getPage(pageNum),vp=p.getViewport({scale});
- e.pdfCanvas.width=Math.ceil(vp.width);e.pdfCanvas.height=Math.ceil(vp.height);e.pdfCanvas.style.width=vp.width+'px';e.pdfCanvas.style.height=vp.height+'px';e.pageStage.style.width=vp.width+'px';e.pageStage.style.height=vp.height+'px';
- await p.render({canvasContext:ctx,viewport:vp}).promise;
- const tc=await p.getTextContent();pageItems=tc.items;words=splitWords(pageItems);wordIndex=Math.min(wordIndex,Math.max(0,words.length-1));renderOverlay(vp);
- e.plainText.textContent=pageItems.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim()||'[Sem texto extraível]';
- e.pageInfo.textContent=`Página ${pageNum} / ${pdf.numPages}`;e.prev.disabled=pageNum<=1;e.next.disabled=pageNum>=pdf.numPages;e.loadStatus.textContent='';highlight()
-}
-function renderOverlay(vp){
- e.textLayer.innerHTML='';
- words.forEach((w,i)=>{const it=w.item,tx=pdfjsLib.Util.transform(vp.transform,it.transform),fh=Math.hypot(tx[2],tx[3]),fw=(it.width||0)*scale,left=tx[4]+fw*w.startRatio,top=tx[5]-fh,width=Math.max(fw*w.widthRatio,4);
- const s=document.createElement('span');s.className='textWord';s.textContent=w.text;s.style.left=left+'px';s.style.top=top+'px';s.style.width=width+'px';s.style.height=Math.max(fh*1.15,8)+'px';s.onclick=()=>{wordIndex=i;highlight();restart()};e.textLayer.appendChild(s)})
-}
-function highlight(){
- const n=e.textLayer.querySelectorAll('.textWord');n.forEach((x,i)=>{x.classList.toggle('active',i===wordIndex);x.classList.toggle('spoken',i<wordIndex)});
-}
-function segment(start){let end=start,c=0;while(end<words.length&&c<220){c+=words[end].text.length+1;if(/[.!?;:]$/.test(words[end].text)&&c>40){end++;break}end++}return{text:words.slice(start,end).map(x=>x.text).join(' '),end}}
-function speak(){
- if(!words.length)return;gen++;const mine=gen,sg=segment(wordIndex),u=new SpeechSynthesisUtterance(sg.text),v=selectedVoice();u.lang=v?.lang||'pt-BR';u.rate=+e.rate.value;if(v)u.voice=v;
- u.onstart=()=>{if(mine===gen){playing=true;highlight()}};
- u.onend=async()=>{if(mine!==gen)return;playing=false;wordIndex=sg.end;if(wordIndex<words.length){highlight();setTimeout(speak,30)}else if(pageNum<pdf.numPages){pageNum++;wordIndex=0;await renderPage();setTimeout(speak,60)}};
- speechSynthesis.speak(u)
-}
-function restart(){e.rateLabel.textContent=(+e.rate.value).toFixed(1)+'×';if(speechSynthesis.speaking||speechSynthesis.paused||playing){gen++;speechSynthesis.cancel();setTimeout(speak,80)}}
-
-async function openPdfFile(f){
- clearMsg();speechSynthesis.cancel();pdf=null;pageNum=1;wordIndex=0;
- if(currentObjectURL){URL.revokeObjectURL(currentObjectURL);currentObjectURL=null}
- e.fileName.textContent=`${f.name} · ${humanSize(f.size)}`;
- e.loadStatus.textContent='Preparando arquivo do Drive/iPhone…';
- if(!f.size){throw new Error('O iPhone recebeu um arquivo vazio. Abra-o no Google Drive e marque como disponível off-line, depois tente novamente.')}
- currentKey=`${f.name}:${f.size}:${f.lastModified}`;
- // Método 1: Blob URL — evita uma cópia integral imediata na memória.
- try{
-   currentObjectURL=URL.createObjectURL(f);
-   e.loadStatus.textContent='Abrindo PDF por acesso direto…';
-   const task=pdfjsLib.getDocument({url:currentObjectURL,disableAutoFetch:false,disableStream:false});
-   task.onProgress=p=>{if(p.total)e.loadStatus.textContent=`Carregando ${Math.round((p.loaded/p.total)*100)}%…`;else e.loadStatus.textContent='Carregando PDF…'};
-   pdf=await task.promise;
- }catch(err){
-   console.warn('blob URL falhou; usando arrayBuffer',err);
-   if(currentObjectURL){URL.revokeObjectURL(currentObjectURL);currentObjectURL=null}
-   e.loadStatus.textContent='Tentando método compatível…';
-   const buf=await f.arrayBuffer();
-   pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
- }
- msg(`PDF aberto: ${pdf.numPages} páginas.`, 'ok');
- e.loadStatus.textContent='';
- await renderPage();
-}
-
-e.file.addEventListener('change',async ev=>{
- const f=ev.target.files?.[0];if(!f)return;
- try{await openPdfFile(f)}
- catch(err){
-   console.error(err);
-   e.loadStatus.textContent='';
-   msg(`Não foi possível abrir este PDF.\n\n${err?.message||err}\n\nSe ele estiver no Google Drive: abra o Drive, toque nos três pontos do arquivo → “Disponibilizar off-line” e tente novamente.`, 'error');
- }
-});
-
-e.prev.onclick=async()=>{if(pdf&&pageNum>1){pageNum--;wordIndex=0;await renderPage()}};
-e.next.onclick=async()=>{if(pdf&&pageNum<pdf.numPages){pageNum++;wordIndex=0;await renderPage()}};
-e.play.onclick=()=>speechSynthesis.paused?speechSynthesis.resume():speak();
-e.pause.onclick=()=>speechSynthesis.pause();e.stop.onclick=()=>{gen++;speechSynthesis.cancel();playing=false};
-e.back.onclick=()=>{wordIndex=Math.max(0,wordIndex-1);highlight();restart()};e.forward.onclick=()=>{wordIndex=Math.min(words.length-1,wordIndex+1);highlight();restart()};
-e.rate.oninput=restart;e.voice.onchange=restart;
-e.modeBook.onclick=()=>{e.bookCard.classList.remove('hidden');e.textCard.classList.add('hidden');e.modeBook.classList.add('active');e.modeText.classList.remove('active')};
-e.modeText.onclick=()=>{e.textCard.classList.remove('hidden');e.bookCard.classList.add('hidden');e.modeText.classList.add('active');e.modeBook.classList.remove('active')};
-async function setScale(v){scale=Math.max(.6,Math.min(2.6,v));e.zoomLabel.textContent=Math.round(scale/1.25*100)+'%';if(pdf)await renderPage()}
-e.zoomIn.onclick=()=>setScale(scale+.15);e.zoomOut.onclick=()=>setScale(scale-.15);e.fit.onclick=async()=>{if(!pdf)return;const p=await pdf.getPage(pageNum),base=p.getViewport({scale:1});setScale((e.bookWrap.clientWidth-8)/base.width)};
-
-document.addEventListener('selectionchange',()=>{const s=window.getSelection();if(s&&!s.isCollapsed){const t=s.toString().trim();if(t)e.selectedText.value=t}});
-function result(t){e.toolResult.textContent=t;e.toolResult.classList.remove('hidden')}
-e.translate.onclick=async()=>{const t=e.selectedText.value.trim();if(!t)return result('Selecione um trecho.');try{result('Traduzindo…');const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t.slice(0,4500))}&langpair=auto|${e.targetLang.value}`),j=await r.json();result(j?.responseData?.translatedText||'Sem tradução.')}catch{result('Falha na tradução online.')}};
-e.dictionary.onclick=()=>{const w=e.selectedText.value.trim().split(/\s+/)[0]||'';result(w?`Dicionário: ${w}\nhttps://pt.wiktionary.org/wiki/${encodeURIComponent(w)}`:'Selecione uma palavra.')};
-e.summaryPage.onclick=()=>{const t=pageItems.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim();if(!t)return result('Sem texto para resumir.');const s=t.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[t];result('Resumo da página:\n\n'+s.slice(0,Math.min(8,s.length)).join(' '))};
-
+const $=id=>document.getElementById(id),E={};['file','bookName','pageInfo','percent','progressBar','loadStatus','bookWrap','pageStage','pdfCanvas','textLayer','plainText','reader','textView','studyView','player','tabs','prev','next','back','forward','play','rateBtn','voice','testVoice','focus','selectedText','targetLang','translate','dictionary','summary','result'].forEach(x=>E[x]=$(x));
+let pdf=null,page=1,scale=1.25,items=[],words=[],wi=0,voices=[],rate=1,playing=false,g=0,objURL=null,key='';
+const ctx=E.pdfCanvas.getContext('2d');
+const vkey=v=>`${v.voiceURI}|${v.lang}|${v.name}`;
+function voiceRank(v){let l=v.lang.toLowerCase();return l.startsWith('pt-br')?0:l.startsWith('pt-pt')?1:l.startsWith('pt')?2:3}
+function loadVoices(){voices=speechSynthesis.getVoices().sort((a,b)=>voiceRank(a)-voiceRank(b)||a.name.localeCompare(b.name));let saved=localStorage.getItem('vox5voice');E.voice.innerHTML='';
+[['Português do Brasil',v=>v.lang.toLowerCase().startsWith('pt-br')],['Português de Portugal',v=>v.lang.toLowerCase().startsWith('pt-pt')],['Outras vozes em português',v=>v.lang.toLowerCase().startsWith('pt')&&!v.lang.toLowerCase().startsWith('pt-br')&&!v.lang.toLowerCase().startsWith('pt-pt')],['Outros idiomas',v=>!v.lang.toLowerCase().startsWith('pt')]].forEach(([name,test])=>{let vs=voices.filter(test);if(!vs.length)return;let og=document.createElement('optgroup');og.label=name;vs.forEach(v=>{let o=document.createElement('option');o.value=vkey(v);o.textContent=`${v.name} — ${v.lang}`;og.appendChild(o)});E.voice.appendChild(og)});
+if(saved&&voices.some(v=>vkey(v)===saved))E.voice.value=saved;else{let p=voices.find(v=>v.lang.toLowerCase().startsWith('pt-br'));if(p)E.voice.value=vkey(p)}
+let br=voices.filter(v=>v.lang.toLowerCase().startsWith('pt-br')).length,pt=voices.filter(v=>v.lang.toLowerCase().startsWith('pt-pt')).length;$('voiceStatus').textContent=`Disponíveis no iPhone/Safari: ${br} pt-BR · ${pt} pt-PT`; }
+speechSynthesis.onvoiceschanged=loadVoices;loadVoices();[250,800,1800].forEach(t=>setTimeout(loadVoices,t));
+function chosen(){return voices.find(v=>vkey(v)===E.voice.value)}
+E.voice.onchange=()=>{localStorage.setItem('vox5voice',E.voice.value);restart()};
+E.testVoice.onclick=()=>{speechSynthesis.cancel();let u=new SpeechSynthesisUtterance('Olá. Esta é a voz selecionada para a leitura do seu livro no VoxPDF.');let v=chosen();u.lang=v?.lang||'pt-BR';u.rate=rate;if(v)u.voice=v;speechSynthesis.speak(u)};
+function split(a){let z=[];a.forEach(it=>{let t=(it.str||'').trim();if(!t)return;for(let m of t.matchAll(/\S+/g))z.push({text:m[0],item:it,start:(m.index||0)/Math.max(t.length,1),width:m[0].length/Math.max(t.length,1)})});return z}
+function save(){if(key)localStorage.setItem('vox5:'+key,JSON.stringify({page,wi,rate}))}
+function restore(){try{return JSON.parse(localStorage.getItem('vox5:'+key)||'{}')}catch{return{}}}
+async function render(){if(!pdf)return;g++;speechSynthesis.cancel();E.loadStatus.textContent=`Carregando página ${page}…`;let p=await pdf.getPage(page),vp=p.getViewport({scale});E.pdfCanvas.width=Math.ceil(vp.width);E.pdfCanvas.height=Math.ceil(vp.height);E.pageStage.style.width=vp.width+'px';E.pageStage.style.height=vp.height+'px';await p.render({canvasContext:ctx,viewport:vp}).promise;let tc=await p.getTextContent();items=tc.items;words=split(items);wi=Math.min(wi,Math.max(0,words.length-1));overlay(vp);E.plainText.textContent=items.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim()||'[Esta página não possui texto extraível.]';let pc=Math.round(page/pdf.numPages*100);E.pageInfo.textContent=`Página ${page} / ${pdf.numPages}`;E.percent.textContent=pc+'%';E.progressBar.style.width=pc+'%';E.loadStatus.textContent='';highlight();save()}
+function overlay(vp){E.textLayer.innerHTML='';words.forEach((w,i)=>{let it=w.item,tx=pdfjsLib.Util.transform(vp.transform,it.transform),fh=Math.hypot(tx[2],tx[3]),fw=(it.width||0)*scale,s=document.createElement('span');s.className='word';s.textContent=w.text;s.style.left=(tx[4]+fw*w.start)+'px';s.style.top=(tx[5]-fh)+'px';s.style.width=Math.max(fw*w.width,4)+'px';s.style.height=Math.max(fh*1.15,8)+'px';s.onclick=()=>{wi=i;highlight();restart()};E.textLayer.appendChild(s)})}
+function highlight(){E.textLayer.querySelectorAll('.word').forEach((x,i)=>{x.classList.toggle('active',i===wi);x.classList.toggle('spoken',i<wi)})}
+function seg(s){let e=s,c=0;while(e<words.length&&c<230){c+=words[e].text.length+1;if(/[.!?;:]$/.test(words[e].text)&&c>40){e++;break}e++}return{text:words.slice(s,e).map(x=>x.text).join(' '),end:e}}
+function speak(){if(!words.length)return;g++;let mine=g,s=seg(wi),u=new SpeechSynthesisUtterance(s.text),v=chosen();u.lang=v?.lang||'pt-BR';u.rate=rate;if(v)u.voice=v;u.onstart=()=>{if(mine===g){playing=true;E.play.textContent='⏸'}};u.onend=async()=>{if(mine!==g)return;wi=s.end;if(wi<words.length){highlight();save();speak()}else if(page<pdf.numPages){page++;wi=0;await render();speak()}else{playing=false;E.play.textContent='▶'}};speechSynthesis.speak(u)}
+function restart(){if(speechSynthesis.speaking||playing){g++;speechSynthesis.cancel();setTimeout(speak,80)}}
+E.play.onclick=()=>{if(speechSynthesis.paused){speechSynthesis.resume();E.play.textContent='⏸'}else if(speechSynthesis.speaking){speechSynthesis.pause();E.play.textContent='▶'}else speak()};
+E.back.onclick=()=>{wi=Math.max(0,wi-5);highlight();restart()};E.forward.onclick=()=>{wi=Math.min(words.length-1,wi+5);highlight();restart()};
+E.prev.onclick=async()=>{if(pdf&&page>1){page--;wi=0;await render()}};E.next.onclick=async()=>{if(pdf&&page<pdf.numPages){page++;wi=0;await render()}};
+E.rateBtn.onclick=()=>{let rs=[.7,.8,1,1.2,1.5,1.8,2,2.5,3],i=rs.indexOf(rate);rate=rs[(i+1)%rs.length];E.rateBtn.textContent=rate.toFixed(1)+'×';save();restart()};
+E.file.onchange=async ev=>{let f=ev.target.files?.[0];if(!f)return;key=`${f.name}:${f.size}:${f.lastModified}`;E.bookName.textContent=f.name;E.loadStatus.textContent='Preparando PDF…';if(objURL)URL.revokeObjectURL(objURL);try{objURL=URL.createObjectURL(f);pdf=await pdfjsLib.getDocument({url:objURL}).promise}catch(err){let b=await f.arrayBuffer();pdf=await pdfjsLib.getDocument({data:new Uint8Array(b)}).promise}let s=restore();page=s.page>=1&&s.page<=pdf.numPages?s.page:1;wi=s.wi||0;rate=s.rate||1;E.rateBtn.textContent=rate.toFixed(1)+'×';await render()};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');['reader','textView','studyView'].forEach(id=>$(id).classList.toggle('hidden',id!==b.dataset.view))});
+let focus=false;E.focus.onclick=()=>{focus=!focus;E.player.classList.toggle('hidden',focus);E.tabs.classList.toggle('hidden',focus);document.querySelector('.top').classList.toggle('hidden',focus)};
+document.addEventListener('selectionchange',()=>{let s=window.getSelection();if(s&&!s.isCollapsed&&s.toString().trim())E.selectedText.value=s.toString().trim()});
+function result(t){E.result.textContent=t;E.result.classList.remove('hidden')}
+E.translate.onclick=async()=>{let t=E.selectedText.value.trim();if(!t)return result('Selecione um trecho.');result('Traduzindo…');try{let r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t.slice(0,4500))}&langpair=auto|${E.targetLang.value}`),j=await r.json();result(j?.responseData?.translatedText||'Sem tradução.')}catch{result('Não foi possível traduzir agora.')}};
+E.dictionary.onclick=()=>{let w=E.selectedText.value.trim().split(/\s+/)[0];result(w?`Procure no Wikcionário: ${w}`:'Selecione uma palavra.')};
+E.summary.onclick=()=>{let t=items.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim(),s=t.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[];result(s.length?'Resumo rápido:\n\n'+s.slice(0,8).join(' '):'Sem texto extraível nesta página.')};
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
-</script>
-</body></html>
+</script></body></html>

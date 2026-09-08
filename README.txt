@@ -1,1 +1,11 @@
-VoxPDF V4.1 DriveFix — corrige abertura de PDFs grandes e arquivos vindos do Google Drive usando Blob URL com fallback para ArrayBuffer.
+VoxPDF V5 Modern Reader
+- Interface moderna e responsiva
+- Barra de leitura flutuante
+- Livro / Texto / Estudo
+- Progresso visual
+- Modo foco
+- Todas as vozes pt-BR, pt-PT e variantes expostas pelo iPhone/Safari
+- Teste de voz e persistência da voz escolhida
+- Velocidades de 0.7x a 3.0x
+- Google Drive/PDF grande com Blob URL + fallback
+- Progresso de leitura salvo localmente
