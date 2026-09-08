@@ -5,131 +5,174 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
-<title>VoxPDF V3</title>
+<title>VoxPDF Study V4.1</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light dark}
-body{margin:0;background:#f3f4f6;color:#111827}
-header{padding:16px;background:#111827;color:white;position:sticky;top:0;z-index:20}
-header h1{margin:0;font-size:22px}.sub{font-size:13px;opacity:.8;margin-top:4px}
-main{padding:12px;max-width:980px;margin:auto}
-.card{background:white;border-radius:16px;padding:12px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.07)}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-button,select,input{font:inherit}
-button{border:0;border-radius:11px;padding:10px 13px;background:#111827;color:#fff}
-button.secondary{background:#e5e7eb;color:#111827}
-.grow{flex:1}.meta{font-size:13px;color:#6b7280}
-#bookWrap{position:relative;overflow:auto;background:#d1d5db;border-radius:12px;max-height:62vh;touch-action:pan-x pan-y}
-#pageStage{position:relative;margin:0 auto;transform-origin:top left}
-#pdfCanvas{display:block;background:white}
-#textLayer{position:absolute;inset:0;overflow:hidden;opacity:1;line-height:1}
-.textWord{position:absolute;white-space:pre;transform-origin:0 0;color:transparent;cursor:pointer;border-radius:3px}
-.textWord.active{background:rgba(255,215,0,.58);outline:1px solid rgba(234,179,8,.85)}
-.textWord.spoken{background:rgba(253,230,138,.24)}
-#plainText{white-space:pre-wrap;line-height:1.55;max-height:55vh;overflow:auto;background:#f9fafb;border-radius:12px;padding:12px}
-.hidden{display:none!important}
-.segment{display:flex;background:#e5e7eb;border-radius:11px;padding:3px}
-.segment button{background:transparent;color:#111827;padding:7px 11px}.segment button.active{background:#111827;color:#fff}
-#rate{width:160px}.status{font-size:12px;color:#6b7280}
-mark{border-radius:4px;padding:1px 2px}
-@media(prefers-color-scheme:dark){
-body{background:#0b1020;color:#f9fafb}.card{background:#111827}.secondary{background:#374151!important;color:white!important}
-#plainText{background:#0f172a}.meta,.status{color:#cbd5e1}.segment{background:#374151}.segment button{color:white}
-}
-</style>
-
-<style id="studyStyle">
-#studyTools textarea{width:100%;min-height:78px;border:1px solid #d1d5db;border-radius:10px;padding:9px;background:transparent;color:inherit} .studyResult{white-space:pre-wrap;line-height:1.5;background:#f9fafb;border-radius:10px;padding:10px;margin-top:8px}.studyGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.studyItem{border:1px solid #e5e7eb;border-radius:12px;padding:10px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#e5e7eb;color:#111827;font-size:11px}@media(prefers-color-scheme:dark){.studyResult{background:#0f172a}.studyItem{border-color:#374151}.pill{background:#374151;color:#fff}#studyTools textarea{border-color:#4b5563}}
+*{box-sizing:border-box} body{margin:0;background:#f3f4f6;color:#111827}
+header{padding:16px;background:#111827;color:white;position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:22px}.sub{font-size:12px;opacity:.8;margin-top:4px}
+main{padding:12px;max-width:980px;margin:auto}.card{background:white;border-radius:16px;padding:12px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.07)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grow{flex:1}
+button,select,input,textarea{font:inherit}button{border:0;border-radius:11px;padding:10px 13px;background:#111827;color:#fff}
+button.secondary{background:#e5e7eb;color:#111827}button:disabled{opacity:.45}.meta,.status{font-size:12px;color:#6b7280}
+#bookWrap{position:relative;overflow:auto;background:#d1d5db;border-radius:12px;max-height:60vh}
+#pageStage{position:relative;margin:0 auto}#pdfCanvas{display:block;background:white}
+#textLayer{position:absolute;inset:0;overflow:hidden}.textWord{position:absolute;color:transparent;white-space:pre;border-radius:3px}
+.textWord.active{background:rgba(255,215,0,.62);outline:1px solid rgba(234,179,8,.8)}.textWord.spoken{background:rgba(253,230,138,.22)}
+#plainText{white-space:pre-wrap;line-height:1.6;max-height:55vh;overflow:auto;background:#f9fafb;border-radius:12px;padding:12px}
+.hidden{display:none!important}.segment{display:flex;background:#e5e7eb;border-radius:11px;padding:3px}.segment button{background:transparent;color:#111827;padding:7px 11px}.segment button.active{background:#111827;color:white}
+#selectedText{width:100%;min-height:80px;border:1px solid #d1d5db;border-radius:10px;padding:9px;background:transparent;color:inherit}
+.result{white-space:pre-wrap;line-height:1.5;background:#f9fafb;border-radius:10px;padding:10px;margin-top:8px}
+.error{background:#fee2e2;color:#7f1d1d;padding:10px;border-radius:10px;margin-top:8px;white-space:pre-wrap}
+.ok{background:#dcfce7;color:#14532d;padding:10px;border-radius:10px;margin-top:8px}
+@media(prefers-color-scheme:dark){body{background:#0b1020;color:#f9fafb}.card{background:#111827}.secondary{background:#374151!important;color:white!important}#plainText,.result{background:#0f172a}.meta,.status{color:#cbd5e1}.segment{background:#374151}.segment button{color:#fff}#selectedText{border-color:#4b5563}}
 </style>
 </head>
 <body>
-<header><h1>VoxPDF</h1><div class="sub">Modo Livro + ferramentas de estudo · V4</div></header>
+<header><h1>VoxPDF Study</h1><div class="sub">V4.1 · correção para Google Drive e PDFs grandes</div></header>
 <main>
-<section class="card"><input id="file" type="file" accept="application/pdf"><div class="meta" id="fileName">Nenhum PDF carregado</div></section>
-<section class="card"><div class="row"><button id="prev" class="secondary">◀ Página</button><strong id="pageInfo" class="grow">Página 0 / 0</strong><button id="next" class="secondary">Página ▶</button></div></section>
 <section class="card">
-<div class="row"><button id="play">▶ Ler</button><button id="pause" class="secondary">⏸ Pausar</button><button id="stop" class="secondary">⏹ Parar</button><button id="back" class="secondary">↶ palavra</button><button id="forward" class="secondary">palavra ↷</button></div>
-<div style="height:10px"></div>
-<div class="row"><label>Velocidade <strong id="rateLabel">1.0×</strong></label><input id="rate" type="range" min="0.5" max="3" step="0.1" value="1"><select id="voice" class="grow"></select><button id="reloadVoices" class="secondary">↻ Vozes</button></div>
-<div id="voiceStatus" class="status" style="margin-top:7px">Carregando vozes…</div>
+ <input id="file" type="file" accept=".pdf,application/pdf">
+ <div id="fileName" class="meta">Nenhum PDF carregado</div>
+ <div id="loadStatus" class="status" style="margin-top:7px"></div>
+ <div id="loadMessage" class="hidden"></div>
 </section>
-<section class="card"><div class="row"><div class="segment"><button id="modeBook" class="active">📖 Livro</button><button id="modeText">☰ Texto</button></div><div class="grow"></div><button id="zoomOut" class="secondary">−</button><span id="zoomLabel" class="status">100%</span><button id="zoomIn" class="secondary">+</button><button id="fit" class="secondary">Ajustar</button></div></section>
-<section id="bookCard" class="card"><div id="bookWrap"><div id="pageStage"><canvas id="pdfCanvas"></canvas><div id="textLayer"></div></div></div><div class="status" style="margin-top:7px">Toque em uma palavra da página para começar a leitura naquele ponto.</div></section>
-<section id="textCard" class="card hidden"><strong>Texto da página</strong><div id="plainText" class="meta">Carregue um PDF para começar.</div></section>
 
-<section id="studyTools" class="card">
- <div class="row"><strong class="grow">Ferramentas de estudo</strong><span id="selStatus" class="pill">Nenhum trecho selecionado</span></div>
- <textarea id="selectedText" placeholder="Selecione uma palavra, frase ou trecho no modo Texto, ou cole aqui."></textarea>
- <div class="row" style="margin-top:8px">
-  <select id="targetLang"><option value="pt">Português</option><option value="en">Inglês</option><option value="es">Espanhol</option><option value="fr">Francês</option><option value="it">Italiano</option><option value="de">Alemão</option></select>
-  <button id="translate">🌐 Traduzir</button><button id="dictionary" class="secondary">📖 Dicionário</button><button id="explain" class="secondary">💡 Explicar</button><button id="saveSelection" class="secondary">⭐ Salvar</button>
- </div>
- <div id="toolResult" class="studyResult hidden"></div>
- <div class="status" style="margin-top:7px">A tradução usa serviço online. As demais funções básicas ficam no aparelho.</div>
-</section>
+<section class="card"><div class="row"><button id="prev" class="secondary">◀ Página</button><strong id="pageInfo" class="grow">Página 0 / 0</strong><button id="next" class="secondary">Página ▶</button></div></section>
+
 <section class="card">
- <strong>Resumos</strong>
- <div class="row" style="margin-top:8px"><button id="summaryPage">Resumo da página</button><input id="chapterFrom" type="number" min="1" placeholder="de" style="width:70px"><input id="chapterTo" type="number" min="1" placeholder="até" style="width:70px"><button id="summaryChapter" class="secondary">Resumo do capítulo</button><button id="summaryBook" class="secondary">Resumo do livro</button><button id="openNotebook" class="secondary">📒 Caderno</button></div>
- <div id="summaryProgress" class="status" style="margin-top:7px"></div><div id="summaryResult" class="studyResult hidden"></div>
+ <div class="row"><button id="play">▶ Ler</button><button id="pause" class="secondary">⏸ Pausar</button><button id="stop" class="secondary">⏹ Parar</button><button id="back" class="secondary">↶ palavra</button><button id="forward" class="secondary">palavra ↷</button></div>
+ <div style="height:10px"></div>
+ <div class="row"><label>Velocidade <strong id="rateLabel">1.0×</strong></label><input id="rate" type="range" min=".5" max="3" step=".1" value="1"><select id="voice" class="grow"></select><button id="reloadVoices" class="secondary">↻ Vozes</button></div>
+ <div id="voiceStatus" class="status" style="margin-top:7px"></div>
 </section>
-<section id="notebookCard" class="card hidden"><div class="row"><strong class="grow">📒 Caderno de estudo</strong><button id="closeNotebook" class="secondary">Fechar</button></div><div id="notebook" class="studyGrid" style="margin-top:10px"></div></section>
+
+<section class="card"><div class="row"><div class="segment"><button id="modeBook" class="active">📖 Livro</button><button id="modeText">☰ Texto</button></div><div class="grow"></div><button id="zoomOut" class="secondary">−</button><span id="zoomLabel" class="status">100%</span><button id="zoomIn" class="secondary">+</button><button id="fit" class="secondary">Ajustar</button></div></section>
+
+<section id="bookCard" class="card"><div id="bookWrap"><div id="pageStage"><canvas id="pdfCanvas"></canvas><div id="textLayer"></div></div></div></section>
+<section id="textCard" class="card hidden"><strong>Texto da página</strong><div id="plainText" class="meta">Carregue um PDF.</div></section>
+
+<section class="card">
+ <strong>Ferramentas de estudo</strong>
+ <textarea id="selectedText" placeholder="Selecione no modo Texto ou cole um trecho aqui."></textarea>
+ <div class="row" style="margin-top:8px"><select id="targetLang"><option value="pt">Português</option><option value="en">Inglês</option><option value="es">Espanhol</option><option value="fr">Francês</option></select><button id="translate">🌐 Traduzir</button><button id="dictionary" class="secondary">📖 Dicionário</button><button id="summaryPage" class="secondary">Resumo da página</button></div>
+ <div id="toolResult" class="result hidden"></div>
+</section>
 </main>
+
 <script type="module">
 import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
-const ids=['file','fileName','prev','next','pageInfo','play','pause','stop','back','forward','rate','rateLabel','voice','reloadVoices','voiceStatus','modeBook','modeText','zoomOut','zoomIn','fit','zoomLabel','bookCard','textCard','bookWrap','pageStage','pdfCanvas','textLayer','plainText'];
+
+const ids=['file','fileName','loadStatus','loadMessage','prev','next','pageInfo','play','pause','stop','back','forward','rate','rateLabel','voice','reloadVoices','voiceStatus','modeBook','modeText','zoomOut','zoomIn','fit','zoomLabel','bookCard','textCard','bookWrap','pageStage','pdfCanvas','textLayer','plainText','selectedText','targetLang','translate','dictionary','summaryPage','toolResult'];
 const e=Object.fromEntries(ids.map(id=>[id,document.getElementById(id)]));
-let pdf=null,pageNum=1,currentFileKey='',scale=1.25,pageItems=[],words=[],wordIndex=0,voices=[],playing=false,gen=0;
-let ctx=e.pdfCanvas.getContext('2d');
-function keyVoice(v){return `${v.voiceURI}|${v.lang}|${v.name}`}
-function chosenVoice(){return voices.find(v=>keyVoice(v)===e.voice.value)}
+let pdf=null,pageNum=1,scale=1.25,pageItems=[],words=[],wordIndex=0,voices=[],gen=0,playing=false,currentObjectURL=null,currentKey='';
+const ctx=e.pdfCanvas.getContext('2d');
+
+function msg(text,type='status'){
+ e.loadMessage.className=type==='error'?'error':type==='ok'?'ok':'status';
+ e.loadMessage.textContent=text;e.loadMessage.classList.remove('hidden');
+}
+function clearMsg(){e.loadMessage.classList.add('hidden');e.loadMessage.textContent=''}
+function humanSize(n){return n<1048576?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(1)+' MB'}
+
+function vk(v){return `${v.voiceURI}|${v.lang}|${v.name}`}
 function loadVoices(){
- const prev=e.voice.value; voices=speechSynthesis.getVoices();
- const ordered=[...voices].sort((a,b)=>{const pa=a.lang.toLowerCase().startsWith('pt-br')?0:a.lang.toLowerCase().startsWith('pt')?1:2;const pb=b.lang.toLowerCase().startsWith('pt-br')?0:b.lang.toLowerCase().startsWith('pt')?1:2;return pa-pb||a.name.localeCompare(b.name)});
- e.voice.innerHTML=''; ordered.forEach(v=>{const o=document.createElement('option');o.value=keyVoice(v);o.textContent=`${v.name} — ${v.lang}`;e.voice.appendChild(o)});
- if(prev&&ordered.some(v=>keyVoice(v)===prev))e.voice.value=prev;else{const pt=ordered.find(v=>v.lang.toLowerCase().startsWith('pt-br'));if(pt)e.voice.value=keyVoice(pt)}
- e.voiceStatus.textContent=`${ordered.length} voz(es) · ${ordered.filter(v=>v.lang.toLowerCase().startsWith('pt-br')).length} pt-BR`;
+ const old=e.voice.value;voices=speechSynthesis.getVoices();
+ const o=[...voices].sort((a,b)=>(a.lang.toLowerCase().startsWith('pt-br')?0:1)-(b.lang.toLowerCase().startsWith('pt-br')?0:1));
+ e.voice.innerHTML='';o.forEach(v=>{const x=document.createElement('option');x.value=vk(v);x.textContent=`${v.name} — ${v.lang}`;e.voice.appendChild(x)});
+ if(old&&o.some(v=>vk(v)===old))e.voice.value=old;else{const p=o.find(v=>v.lang.toLowerCase().startsWith('pt-br'));if(p)e.voice.value=vk(p)}
+ e.voiceStatus.textContent=`${o.length} voz(es) · ${o.filter(v=>v.lang.toLowerCase().startsWith('pt-br')).length} pt-BR`;
 }
-speechSynthesis.onvoiceschanged=loadVoices;loadVoices();[200,600,1200,2500].forEach(t=>setTimeout(loadVoices,t));
-e.reloadVoices.onclick=()=>{loadVoices();[300,900,1800].forEach(t=>setTimeout(loadVoices,t))};
-function saveState(){if(currentFileKey)localStorage.setItem('voxpdf3:'+currentFileKey,JSON.stringify({page:pageNum,word:wordIndex,rate:+e.rate.value,voice:e.voice.value,scale}))}
-function state(){try{return JSON.parse(localStorage.getItem('voxpdf3:'+currentFileKey)||'{}')}catch{return{}}}
+speechSynthesis.onvoiceschanged=loadVoices;loadVoices();[200,700,1500].forEach(t=>setTimeout(loadVoices,t));
+e.reloadVoices.onclick=loadVoices;
+function selectedVoice(){return voices.find(v=>vk(v)===e.voice.value)}
+
 function splitWords(items){
- const arr=[];items.forEach((it,itemIndex)=>{const txt=(it.str||'').trim();if(!txt)return;const parts=[...txt.matchAll(/\S+/g)];const itemWidth=Math.max(it.width||1,1);
- parts.forEach(m=>{const start=m.index||0;arr.push({text:m[0],itemIndex,startRatio:start/Math.max(txt.length,1),widthRatio:m[0].length/Math.max(txt.length,1),item:it})})});return arr
+ const a=[];items.forEach(it=>{const t=(it.str||'').trim();if(!t)return;for(const m of t.matchAll(/\S+/g)){a.push({text:m[0],startRatio:(m.index||0)/Math.max(t.length,1),widthRatio:m[0].length/Math.max(t.length,1),item:it})}});return a
 }
-async function renderPage(restore=false){
- if(!pdf)return;gen++;speechSynthesis.cancel();playing=false;
- const p=await pdf.getPage(pageNum);const viewport=p.getViewport({scale});
- e.pdfCanvas.width=Math.ceil(viewport.width);e.pdfCanvas.height=Math.ceil(viewport.height);e.pdfCanvas.style.width=viewport.width+'px';e.pdfCanvas.style.height=viewport.height+'px';e.pageStage.style.width=viewport.width+'px';e.pageStage.style.height=viewport.height+'px';
- await p.render({canvasContext:ctx,viewport}).promise;
- const tc=await p.getTextContent();pageItems=tc.items;words=splitWords(pageItems);if(!restore)wordIndex=0;wordIndex=Math.max(0,Math.min(wordIndex,Math.max(0,words.length-1)));renderOverlay(viewport);
- e.plainText.textContent=pageItems.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim()||'[Sem texto extraível]';e.pageInfo.textContent=`Página ${pageNum} / ${pdf.numPages}`;e.prev.disabled=pageNum<=1;e.next.disabled=pageNum>=pdf.numPages;highlightWord();saveState()
+
+async function renderPage(){
+ if(!pdf)return;
+ gen++;speechSynthesis.cancel();playing=false;
+ e.loadStatus.textContent=`Renderizando página ${pageNum}…`;
+ const p=await pdf.getPage(pageNum),vp=p.getViewport({scale});
+ e.pdfCanvas.width=Math.ceil(vp.width);e.pdfCanvas.height=Math.ceil(vp.height);e.pdfCanvas.style.width=vp.width+'px';e.pdfCanvas.style.height=vp.height+'px';e.pageStage.style.width=vp.width+'px';e.pageStage.style.height=vp.height+'px';
+ await p.render({canvasContext:ctx,viewport:vp}).promise;
+ const tc=await p.getTextContent();pageItems=tc.items;words=splitWords(pageItems);wordIndex=Math.min(wordIndex,Math.max(0,words.length-1));renderOverlay(vp);
+ e.plainText.textContent=pageItems.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim()||'[Sem texto extraível]';
+ e.pageInfo.textContent=`Página ${pageNum} / ${pdf.numPages}`;e.prev.disabled=pageNum<=1;e.next.disabled=pageNum>=pdf.numPages;e.loadStatus.textContent='';highlight()
 }
-function renderOverlay(viewport){
+function renderOverlay(vp){
  e.textLayer.innerHTML='';
- words.forEach((w,i)=>{const it=w.item,tx=pdfjsLib.Util.transform(viewport.transform,it.transform),fontHeight=Math.hypot(tx[2],tx[3]),fullWidth=(it.width||0)*scale,left=tx[4]+fullWidth*w.startRatio,top=tx[5]-fontHeight,width=Math.max(fullWidth*w.widthRatio,4);
- const s=document.createElement('span');s.className='textWord';s.dataset.i=i;s.textContent=w.text;s.style.left=left+'px';s.style.top=top+'px';s.style.width=width+'px';s.style.height=Math.max(fontHeight*1.15,8)+'px';s.style.fontSize=fontHeight+'px';s.onclick=()=>{wordIndex=i;highlightWord();restart()};e.textLayer.appendChild(s)})
+ words.forEach((w,i)=>{const it=w.item,tx=pdfjsLib.Util.transform(vp.transform,it.transform),fh=Math.hypot(tx[2],tx[3]),fw=(it.width||0)*scale,left=tx[4]+fw*w.startRatio,top=tx[5]-fh,width=Math.max(fw*w.widthRatio,4);
+ const s=document.createElement('span');s.className='textWord';s.textContent=w.text;s.style.left=left+'px';s.style.top=top+'px';s.style.width=width+'px';s.style.height=Math.max(fh*1.15,8)+'px';s.onclick=()=>{wordIndex=i;highlight();restart()};e.textLayer.appendChild(s)})
 }
-function highlightWord(){const nodes=e.textLayer.querySelectorAll('.textWord');nodes.forEach((n,i)=>{n.classList.toggle('active',i===wordIndex);n.classList.toggle('spoken',i<wordIndex)});const active=nodes[wordIndex];if(active)active.scrollIntoView({block:'center',inline:'center',behavior:'smooth'});renderPlainHighlight()}
-function renderPlainHighlight(){if(!words.length)return;e.plainText.innerHTML='';const before=words.slice(0,wordIndex).map(w=>w.text).join(' '),cur=words[wordIndex]?.text||'',after=words.slice(wordIndex+1).map(w=>w.text).join(' ');if(before)e.plainText.append(document.createTextNode(before+' '));const m=document.createElement('mark');m.textContent=cur;e.plainText.appendChild(m);if(after)e.plainText.append(document.createTextNode(' '+after))}
-function sentenceFromWord(start){let end=start,chars=0;while(end<words.length&&chars<220){chars+=words[end].text.length+1;if(/[.!?;:]$/.test(words[end].text)&&chars>40){end++;break}end++}return{text:words.slice(start,end).map(w=>w.text).join(' '),end}}
+function highlight(){
+ const n=e.textLayer.querySelectorAll('.textWord');n.forEach((x,i)=>{x.classList.toggle('active',i===wordIndex);x.classList.toggle('spoken',i<wordIndex)});
+}
+function segment(start){let end=start,c=0;while(end<words.length&&c<220){c+=words[end].text.length+1;if(/[.!?;:]$/.test(words[end].text)&&c>40){end++;break}end++}return{text:words.slice(start,end).map(x=>x.text).join(' '),end}}
 function speak(){
- if(!words.length)return;gen++;const my=gen;speechSynthesis.cancel();const seg=sentenceFromWord(wordIndex);const u=new SpeechSynthesisUtterance(seg.text),v=chosenVoice();u.lang=v?.lang||'pt-BR';u.rate=+e.rate.value;if(v)u.voice=v;
- u.onstart=()=>{if(my===gen){playing=true;highlightWord()}};
- u.onboundary=ev=>{if(my!==gen||ev.name!=='word')return;const prefix=seg.text.slice(0,ev.charIndex);const count=(prefix.match(/\S+/g)||[]).length;wordIndex=Math.min(words.length-1,wordIndex+Math.max(0,count));highlightWord();saveState()};
- u.onend=async()=>{if(my!==gen)return;playing=false;wordIndex=seg.end;if(wordIndex<words.length){highlightWord();saveState();setTimeout(speak,35)}else if(pageNum<pdf.numPages){pageNum++;wordIndex=0;await renderPage(false);setTimeout(speak,70)}};
- u.onerror=()=>{if(my===gen)playing=false};speechSynthesis.speak(u)
+ if(!words.length)return;gen++;const mine=gen,sg=segment(wordIndex),u=new SpeechSynthesisUtterance(sg.text),v=selectedVoice();u.lang=v?.lang||'pt-BR';u.rate=+e.rate.value;if(v)u.voice=v;
+ u.onstart=()=>{if(mine===gen){playing=true;highlight()}};
+ u.onend=async()=>{if(mine!==gen)return;playing=false;wordIndex=sg.end;if(wordIndex<words.length){highlight();setTimeout(speak,30)}else if(pageNum<pdf.numPages){pageNum++;wordIndex=0;await renderPage();setTimeout(speak,60)}};
+ speechSynthesis.speak(u)
 }
-function restart(){e.rateLabel.textContent=(+e.rate.value).toFixed(1)+'×';saveState();if(speechSynthesis.speaking||speechSynthesis.paused||playing){gen++;speechSynthesis.cancel();playing=false;setTimeout(speak,80)}}
-e.file.onchange=async ev=>{const f=ev.target.files?.[0];if(!f)return;currentFileKey=`${f.name}:${f.size}:${f.lastModified}`;e.fileName.textContent=f.name;pdf=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;const s=state();pageNum=s.page>=1&&s.page<=pdf.numPages?s.page:1;wordIndex=Number.isFinite(s.word)?s.word:0;if(s.rate){e.rate.value=s.rate;e.rateLabel.textContent=(+s.rate).toFixed(1)+'×'}if(s.voice)e.voice.value=s.voice;if(s.scale)scale=s.scale;await renderPage(true)};
-e.prev.onclick=async()=>{if(pdf&&pageNum>1){pageNum--;wordIndex=0;await renderPage(false)}};e.next.onclick=async()=>{if(pdf&&pageNum<pdf.numPages){pageNum++;wordIndex=0;await renderPage(false)}};
-e.play.onclick=()=>{if(speechSynthesis.paused){speechSynthesis.resume();playing=true}else speak()};e.pause.onclick=()=>{if(speechSynthesis.speaking&&!speechSynthesis.paused){speechSynthesis.pause();playing=false}};e.stop.onclick=()=>{gen++;speechSynthesis.cancel();playing=false;saveState()};
-e.back.onclick=()=>{wordIndex=Math.max(0,wordIndex-1);highlightWord();restart()};e.forward.onclick=()=>{wordIndex=Math.min(words.length-1,wordIndex+1);highlightWord();restart()};e.rate.oninput=restart;e.voice.onchange=restart;
-e.modeBook.onclick=()=>{e.bookCard.classList.remove('hidden');e.textCard.classList.add('hidden');e.modeBook.classList.add('active');e.modeText.classList.remove('active')};e.modeText.onclick=()=>{e.textCard.classList.remove('hidden');e.bookCard.classList.add('hidden');e.modeText.classList.add('active');e.modeBook.classList.remove('active')};
-async function setScale(v){scale=Math.max(.6,Math.min(2.6,v));e.zoomLabel.textContent=Math.round(scale/1.25*100)+'%';if(pdf)await renderPage(true);saveState()}
-e.zoomIn.onclick=()=>setScale(scale+.15);e.zoomOut.onclick=()=>setScale(scale-.15);e.fit.onclick=async()=>{if(!pdf)return;const p=await pdf.getPage(pageNum);const base=p.getViewport({scale:1});setScale((e.bookWrap.clientWidth-8)/base.width)};
-\n// --- VoxPDF Study V4 ---\nconst st={};['selectedText','selStatus','targetLang','translate','dictionary','explain','saveSelection','toolResult','summaryPage','chapterFrom','chapterTo','summaryChapter','summaryBook','summaryProgress','summaryResult','openNotebook','closeNotebook','notebook','notebookCard'].forEach(id=>st[id]=document.getElementById(id));\nfunction showTool(t){st.toolResult.textContent=t;st.toolResult.classList.remove('hidden')}\ndocument.addEventListener('selectionchange',()=>{const s=window.getSelection();if(!s||s.isCollapsed)return;const t=s.toString().trim();if(t){st.selectedText.value=t;st.selStatus.textContent=`${t.split(/\\s+/).length} palavra(s)`}});\nst.selectedText.oninput=()=>{const t=st.selectedText.value.trim();st.selStatus.textContent=t?`${t.split(/\\s+/).length} palavra(s)`:'Nenhum trecho selecionado'};\nst.translate.onclick=async()=>{const t=st.selectedText.value.trim();if(!t)return showTool('Selecione ou cole um trecho primeiro.');st.translate.disabled=true;showTool('Traduzindo…');try{const u=`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t.slice(0,4500))}&langpair=auto|${st.targetLang.value}`;const r=await fetch(u),j=await r.json();showTool(j?.responseData?.translatedText||'Não foi possível traduzir.')}catch{showTool('Falha na tradução online. Verifique a internet.')}finally{st.translate.disabled=false}};\nst.dictionary.onclick=()=>{const t=st.selectedText.value.trim();if(!t)return showTool('Selecione uma palavra.');const w=t.split(/\\s+/)[0].replace(/[^\\p{L}-]/gu,'');showTool(`Dicionário: “${w}”\\n\\nhttps://pt.wiktionary.org/wiki/${encodeURIComponent(w)}`)};\nfunction topKeywords(text,n=7){const stop=new Set('a o as os de da do das dos e em no na nos nas um uma para por com sem que se ao aos é são foi foram ser ter como mais menos muito não seu sua este esta isso entre sobre até também ou'.split(' ')),m={};(text.toLowerCase().match(/\\p{L}{4,}/gu)||[]).forEach(w=>{if(!stop.has(w))m[w]=(m[w]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,n).map(x=>x[0])}\nst.explain.onclick=()=>{const t=st.selectedText.value.trim();if(!t)return showTool('Selecione um trecho.');showTool(`Explicação local rápida\\n\\nTermos centrais: ${topKeywords(t).join(', ')||'—'}\\n\\nPara explicação conceitual avançada por IA, conectaremos um provedor opcional em uma próxima versão.`)};\nfunction notes(){try{return JSON.parse(localStorage.getItem('voxpdf4-notes')||'[]')}catch{return[]}}\nfunction saveNote(type,text,result=''){const a=notes();a.unshift({id:Date.now(),book:currentFileKey||'Livro',page:pageNum,type,text,result,date:new Date().toLocaleString('pt-BR')});localStorage.setItem('voxpdf4-notes',JSON.stringify(a.slice(0,200)));renderNotebook()}\nst.saveSelection.onclick=()=>{const t=st.selectedText.value.trim();if(!t)return;saveNote('Trecho salvo',t,st.toolResult.classList.contains('hidden')?'':st.toolResult.textContent);showTool('Trecho salvo no Caderno de estudo.')};\nfunction localSummary(text,ratio=.18,maxSent=12){const clean=text.replace(/\\s+/g,' ').trim();if(!clean)return '';const ss=clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[clean];if(ss.length<=4)return clean;const keys=topKeywords(clean,20),sc=ss.map((x,i)=>({s:x.trim(),i,score:keys.reduce((a,k)=>a+(x.toLowerCase().includes(k)?1:0),0)+Math.min(x.length/180,1)})),c=Math.max(3,Math.min(maxSent,Math.round(ss.length*ratio)));return sc.sort((a,b)=>b.score-a.score).slice(0,c).sort((a,b)=>a.i-b.i).map(x=>x.s).join(' ')}\nasync function getPageText(n){const p=await pdf.getPage(n),tc=await p.getTextContent();return tc.items.map(x=>x.str).join(' ').replace(/\\s+/g,' ').trim()}\nfunction showSummary(title,text){st.summaryResult.textContent=`${title}\\n\\n${text}`;st.summaryResult.classList.remove('hidden');saveNote(title,'',text)}\nst.summaryPage.onclick=()=>{if(!pdf)return;showSummary(`Resumo da página ${pageNum}`,localSummary(pageItems.map(x=>x.str).join(' '),.25,8))};\nst.summaryChapter.onclick=async()=>{if(!pdf)return;let a=Math.max(1,+st.chapterFrom.value||pageNum),b=Math.min(pdf.numPages,+st.chapterTo.value||pageNum);if(a>b)[a,b]=[b,a];let parts=[];for(let i=a;i<=b;i++){st.summaryProgress.textContent=`Lendo página ${i}/${b}…`;parts.push(await getPageText(i))}st.summaryProgress.textContent='Concluído.';showSummary(`Resumo do capítulo · páginas ${a}–${b}`,localSummary(parts.join(' '),.08,18))};\nst.summaryBook.onclick=async()=>{if(!pdf)return;st.summaryBook.disabled=true;try{let blocks=[];for(let a=1;a<=pdf.numPages;a+=12){let parts=[],b=Math.min(pdf.numPages,a+11);for(let i=a;i<=b;i++){st.summaryProgress.textContent=`Analisando livro: página ${i}/${pdf.numPages}…`;parts.push(await getPageText(i))}blocks.push(localSummary(parts.join(' '),.06,10))}st.summaryProgress.textContent='Resumo do livro concluído.';showSummary('Resumo do livro inteiro',localSummary(blocks.join(' '),.22,24))}finally{st.summaryBook.disabled=false}};\nfunction esc(x){return String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}\nfunction renderNotebook(){const a=notes();st.notebook.innerHTML=a.length?'':'<div class="meta">Nenhum item salvo ainda.</div>';a.forEach(x=>{const d=document.createElement('div');d.className='studyItem';d.innerHTML=`<strong>${esc(x.type)}</strong><div class="meta">pág. ${x.page} · ${esc(x.date)}</div><div style="margin-top:7px;white-space:pre-wrap">${esc(x.text||x.result||'')}</div>`;st.notebook.appendChild(d)})}\nst.openNotebook.onclick=()=>{renderNotebook();st.notebookCard.classList.remove('hidden');st.notebookCard.scrollIntoView({behavior:'smooth'})};st.closeNotebook.onclick=()=>st.notebookCard.classList.add('hidden');\n
+function restart(){e.rateLabel.textContent=(+e.rate.value).toFixed(1)+'×';if(speechSynthesis.speaking||speechSynthesis.paused||playing){gen++;speechSynthesis.cancel();setTimeout(speak,80)}}
+
+async function openPdfFile(f){
+ clearMsg();speechSynthesis.cancel();pdf=null;pageNum=1;wordIndex=0;
+ if(currentObjectURL){URL.revokeObjectURL(currentObjectURL);currentObjectURL=null}
+ e.fileName.textContent=`${f.name} · ${humanSize(f.size)}`;
+ e.loadStatus.textContent='Preparando arquivo do Drive/iPhone…';
+ if(!f.size){throw new Error('O iPhone recebeu um arquivo vazio. Abra-o no Google Drive e marque como disponível off-line, depois tente novamente.')}
+ currentKey=`${f.name}:${f.size}:${f.lastModified}`;
+ // Método 1: Blob URL — evita uma cópia integral imediata na memória.
+ try{
+   currentObjectURL=URL.createObjectURL(f);
+   e.loadStatus.textContent='Abrindo PDF por acesso direto…';
+   const task=pdfjsLib.getDocument({url:currentObjectURL,disableAutoFetch:false,disableStream:false});
+   task.onProgress=p=>{if(p.total)e.loadStatus.textContent=`Carregando ${Math.round((p.loaded/p.total)*100)}%…`;else e.loadStatus.textContent='Carregando PDF…'};
+   pdf=await task.promise;
+ }catch(err){
+   console.warn('blob URL falhou; usando arrayBuffer',err);
+   if(currentObjectURL){URL.revokeObjectURL(currentObjectURL);currentObjectURL=null}
+   e.loadStatus.textContent='Tentando método compatível…';
+   const buf=await f.arrayBuffer();
+   pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+ }
+ msg(`PDF aberto: ${pdf.numPages} páginas.`, 'ok');
+ e.loadStatus.textContent='';
+ await renderPage();
+}
+
+e.file.addEventListener('change',async ev=>{
+ const f=ev.target.files?.[0];if(!f)return;
+ try{await openPdfFile(f)}
+ catch(err){
+   console.error(err);
+   e.loadStatus.textContent='';
+   msg(`Não foi possível abrir este PDF.\n\n${err?.message||err}\n\nSe ele estiver no Google Drive: abra o Drive, toque nos três pontos do arquivo → “Disponibilizar off-line” e tente novamente.`, 'error');
+ }
+});
+
+e.prev.onclick=async()=>{if(pdf&&pageNum>1){pageNum--;wordIndex=0;await renderPage()}};
+e.next.onclick=async()=>{if(pdf&&pageNum<pdf.numPages){pageNum++;wordIndex=0;await renderPage()}};
+e.play.onclick=()=>speechSynthesis.paused?speechSynthesis.resume():speak();
+e.pause.onclick=()=>speechSynthesis.pause();e.stop.onclick=()=>{gen++;speechSynthesis.cancel();playing=false};
+e.back.onclick=()=>{wordIndex=Math.max(0,wordIndex-1);highlight();restart()};e.forward.onclick=()=>{wordIndex=Math.min(words.length-1,wordIndex+1);highlight();restart()};
+e.rate.oninput=restart;e.voice.onchange=restart;
+e.modeBook.onclick=()=>{e.bookCard.classList.remove('hidden');e.textCard.classList.add('hidden');e.modeBook.classList.add('active');e.modeText.classList.remove('active')};
+e.modeText.onclick=()=>{e.textCard.classList.remove('hidden');e.bookCard.classList.add('hidden');e.modeText.classList.add('active');e.modeBook.classList.remove('active')};
+async function setScale(v){scale=Math.max(.6,Math.min(2.6,v));e.zoomLabel.textContent=Math.round(scale/1.25*100)+'%';if(pdf)await renderPage()}
+e.zoomIn.onclick=()=>setScale(scale+.15);e.zoomOut.onclick=()=>setScale(scale-.15);e.fit.onclick=async()=>{if(!pdf)return;const p=await pdf.getPage(pageNum),base=p.getViewport({scale:1});setScale((e.bookWrap.clientWidth-8)/base.width)};
+
+document.addEventListener('selectionchange',()=>{const s=window.getSelection();if(s&&!s.isCollapsed){const t=s.toString().trim();if(t)e.selectedText.value=t}});
+function result(t){e.toolResult.textContent=t;e.toolResult.classList.remove('hidden')}
+e.translate.onclick=async()=>{const t=e.selectedText.value.trim();if(!t)return result('Selecione um trecho.');try{result('Traduzindo…');const r=await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(t.slice(0,4500))}&langpair=auto|${e.targetLang.value}`),j=await r.json();result(j?.responseData?.translatedText||'Sem tradução.')}catch{result('Falha na tradução online.')}};
+e.dictionary.onclick=()=>{const w=e.selectedText.value.trim().split(/\s+/)[0]||'';result(w?`Dicionário: ${w}\nhttps://pt.wiktionary.org/wiki/${encodeURIComponent(w)}`:'Selecione uma palavra.')};
+e.summaryPage.onclick=()=>{const t=pageItems.map(x=>x.str).join(' ').replace(/\s+/g,' ').trim();if(!t)return result('Sem texto para resumir.');const s=t.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[t];result('Resumo da página:\n\n'+s.slice(0,Math.min(8,s.length)).join(' '))};
+
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
 </script>
 </body></html>
